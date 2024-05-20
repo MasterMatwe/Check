@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Máy tính đơn giản</title>
+    <style>
+        input, button { padding: 10px; margin: 5px; }
+        #ketqua { margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <input type="number" id="a" placeholder="Nhập số a">
+    <input type="number" id="b" placeholder="Nhập số b">
+    <button onclick="tinhToan()">Tính toán</button>
+
+    <div id="ketqua"></div>
+
+    <script>
+        async function tinhToan() {
+            const a = parseFloat(document.getElementById("a").value);
+            const b = parseFloat(document.getElementById("b").value);
+            const ketquaDiv = document.getElementById("ketqua");
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/tinhtoan", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ a: a, b: b }) 
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    ketquaDiv.innerHTML = "";
+                    for (const [phepToan, ketQua] of Object.entries(data)) {
+                        ketquaDiv.innerHTML += `<b>${phepToan}:</b> ${ketQua}<br>`;
+                    }
+                } else {
+                    const errorData = await response.json(); // Lấy thông báo lỗi từ server
+                    ketquaDiv.innerHTML = `<p style="color: red;">Lỗi: ${response.status} - ${errorData.detail}</p>`;
+                }
+            } catch (error) {
+                ketquaDiv.innerHTML = `<p style="color: red;">Lỗi: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
